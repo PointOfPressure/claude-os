@@ -6,14 +6,20 @@ partition and the EFI System Partition are never formatted.
 
 Total time: ~20 minutes of installer + ~15 minutes of unattended bootstrap.
 
-## 1. Flash the USB (on the Windows tower)
+## 1. Flash the USB
 
 1. Download the Debian 13 (trixie) **amd64 netinst** ISO from
    https://www.debian.org/download (non-free firmware is included by default
    since Debian 12).
-2. Flash with [Rufus](https://rufus.ie): select the ISO, keep the default
-   **ISO mode** (not dd mode) so the USB stays writable.
-3. Copy `preseed.cfg` from this repo to the **root of the USB drive**.
+2. Write it to a USB stick, any of:
+   - **Windows tower:** [Rufus](https://rufus.ie). If you keep the default
+     ISO mode the stick stays writable and you can copy `preseed.cfg` to its
+     root (enables the offline `file=` variant below).
+   - **Any Linux (e.g. the laptop's current Zorin):** GNOME *Disks* →
+     *Restore Disk Image*, or
+     `sudo dd if=debian-13.*-amd64-netinst.iso of=/dev/sdX bs=4M status=progress`.
+     dd-written sticks are read-only — use the `url=` preseed variant below,
+     which needs no file on the USB at all.
 
 ## 2. Boot the installer
 
@@ -23,9 +29,13 @@ Total time: ~20 minutes of installer + ~15 minutes of unattended bootstrap.
    (UEFI entry if both are offered).
 3. At the Debian boot menu highlight **Install** (or *Advanced options →
    Automated install*) and press **e** (UEFI/GRUB) or **Tab** (BIOS). Append
-   to the `linux` line:
+   to the `linux` line **one** of:
 
    ```
+   # fetch the preseed from GitHub (works with any stick, needs network):
+   auto=true priority=critical url=https://raw.githubusercontent.com/PointOfPressure/claude-os/main/preseed.cfg
+
+   # or read it from the USB root (Rufus ISO-mode sticks only):
    auto=true priority=critical file=/cdrom/preseed.cfg
    ```
 
