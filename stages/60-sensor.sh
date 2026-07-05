@@ -17,7 +17,8 @@ deploy sensor/package.json /opt/playwright/package.json 0644 "$CLAUDE_OS_USER:$C
 deploy sensor/shot.js /opt/playwright/shot.js 0644 "$CLAUDE_OS_USER:$CLAUDE_OS_USER"
 if [ ! -d /opt/playwright/node_modules/playwright ]; then
     log "npm install playwright (this downloads ~50MB)"
-    run_as_user bash -c 'cd /opt/playwright && npm install --no-fund --no-audit --loglevel=error >/dev/null'
+    run_as_user env NPM_CONFIG_UPDATE_NOTIFIER=false \
+        bash -c 'cd /opt/playwright && npm install --no-fund --no-audit --loglevel=error >/dev/null'
 fi
 
 # Browsers into a shared system path (PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright

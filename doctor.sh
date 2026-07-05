@@ -32,8 +32,8 @@ as_ssh() {
 # ---- base --------------------------------------------------------------------
 CORE_PKGS=(git gh curl wget ripgrep fd-find bat jq yq sqlite3 tmux htop btop
     tree unzip zip p7zip-full rsync build-essential pkg-config cmake python3
-    python3-venv ca-certificates gnupg lsof strace ltrace net-tools dnsutils
-    nmap ncdu moreutils shellcheck)
+    python3-venv ca-certificates gnupg lsof strace ltrace net-tools
+    bind9-dnsutils nmap ncdu moreutils shellcheck)
 missing=()
 for p in "${CORE_PKGS[@]}"; do dpkg -s "$p" >/dev/null 2>&1 || missing+=("$p"); done
 if [ "${#missing[@]}" -eq 0 ]; then ok "core packages (${#CORE_PKGS[@]})"; else fail "core packages" "missing: ${missing[*]}"; fi
@@ -64,6 +64,7 @@ chk "git: defaultBranch main" bash -c "[ \"\$(git config --system init.defaultBr
 chk "journald capped 200M" grep -q 'SystemMaxUse=200M' /etc/systemd/journald.conf.d/claude-os.conf
 chk "motd silent" bash -c "[ ! -s /etc/motd ] && ! find /etc/update-motd.d -type f -perm -u+x 2>/dev/null | grep -q ."
 chk "minimal bashrc for $CLAUDE_OS_USER" cmp -s "$CONFIG_DIR/skel/bashrc" "$CLAUDE_OS_HOME/.bashrc"
+# shellcheck disable=SC2016  # $PAGER must expand in the remote shell, not here
 if [ "$(as_ssh 'echo $PAGER' 2>/dev/null)" = "cat" ]; then ok "ssh shell: PAGER=cat"; else fail "ssh shell: PAGER=cat"; fi
 
 # ---- snapshots -----------------------------------------------------------------

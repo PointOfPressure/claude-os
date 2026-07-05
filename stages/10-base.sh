@@ -22,7 +22,7 @@ apt_install \
     git gh curl wget ripgrep fd-find bat jq yq sqlite3 tmux htop btop tree \
     unzip zip p7zip-full rsync build-essential pkg-config cmake \
     python3 python3-venv ca-certificates gnupg lsof strace ltrace \
-    net-tools dnsutils nmap ncdu moreutils shellcheck \
+    net-tools bind9-dnsutils nmap ncdu moreutils shellcheck \
     locales sudo
 
 # Firmware for the Inspiron's WiFi (Intel or Broadcom SKU) — hardware only.

@@ -7,9 +7,12 @@ REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
 require_root
 
 apt_install docker.io
-# compose v2 if trixie carries it (name has moved around between releases)
+# compose v2 — trixie ships it as "docker-compose" (2.x, the Go rewrite);
+# some releases call it "docker-compose-v2", so take whichever exists
 if apt-cache show docker-compose-v2 >/dev/null 2>&1; then
     apt_install docker-compose-v2
+elif apt-cache show docker-compose >/dev/null 2>&1; then
+    apt_install docker-compose
 fi
 
 # overlay2 explicitly: never let docker pick the btrfs storage driver, which

@@ -11,6 +11,8 @@ CONFIG_DIR="$REPO_DIR/config"
 CLAUDE_OS_HOME="/home/$CLAUDE_OS_USER"
 
 export DEBIAN_FRONTEND=noninteractive
+# Deterministic tool output during bootstrap, even before locales exist.
+export LC_ALL=C.UTF-8
 
 log() { printf 'claude-os: %s\n' "$*"; }
 die() { printf 'claude-os: ERROR: %s\n' "$*" >&2; exit 1; }
@@ -58,6 +60,7 @@ apt_install() {
 # deploy <src relative to config/> <dest> [mode] [owner:group]
 # Copies a reviewable file out of the repo. No-op (and silent) when unchanged.
 # Sets DEPLOY_CHANGED=1 when the file actually changed (for service reloads).
+# shellcheck disable=SC2034  # consumed by the stages that source this file
 DEPLOY_CHANGED=0
 deploy() {
     local src="$CONFIG_DIR/$1" dest="$2" mode="${3:-0644}" owner="${4:-root:root}"
@@ -67,6 +70,7 @@ deploy() {
         return 0
     fi
     install -D -m "$mode" -o "${owner%%:*}" -g "${owner##*:}" "$src" "$dest"
+    # shellcheck disable=SC2034  # consumed by the stages that source this file
     DEPLOY_CHANGED=1
     log "deployed $dest"
 }

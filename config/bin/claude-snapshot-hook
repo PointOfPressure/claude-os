@@ -5,6 +5,11 @@
 # Contract: this hook must NEVER interfere with the tool call. It always
 # exits 0 and prints nothing (exit 0 + no output = "no decision" for
 # PreToolUse), even when snapper is missing or sudo fails.
+#
+# Scope: only commands a root-filesystem snapshot can actually undo are worth
+# a snapshot — package ops, service config, user management, boot plumbing,
+# recursive rm, writes under /etc /usr /boot /opt. Read-only invocations
+# (apt list, dpkg -l, systemctl status, cat /etc/...) must not match.
 set -uo pipefail
 
 RATE_LIMIT_MINUTES="${CLAUDE_SNAPSHOT_RATE_MINUTES:-10}"
@@ -16,11 +21,22 @@ command -v jq >/dev/null 2>&1 || exit 0
 cmd=$(jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
 [ -n "$cmd" ] || exit 0
 
-# Heuristics, one grep per concern. False positive = one cheap snapshot
-# (rate-limited anyway); false negative = one missing pre-snapshot. Both fine.
+# W = start-of-word in a compound command, with optional sudo prefix.
+W='(^|[;&|([:space:]])(sudo[[:space:]]+(-[A-Za-z-]+[[:space:]]+)*)?'
+
 mutating=0
-# system-mutating programs, anywhere in a compound command
-if grep -Eq '(^|[;&|([:space:]])(sudo[[:space:]]+(-[A-Za-z-]+[[:space:]]+)*)?(apt|apt-get|aptitude|dpkg|systemctl|service|update-grub|grub-install|update-initramfs|update-alternatives|mkfs[.a-z0-9]*|parted|sfdisk|fdisk|wipefs|useradd|userdel|usermod|groupadd|groupmod)([[:space:]]|$)' <<<"$cmd"; then
+# package managers, mutating subcommands only
+if grep -Eq "${W}(apt|apt-get|aptitude)[[:space:]]+(-[^[:space:]]+[[:space:]]+)*(install|reinstall|remove|purge|upgrade|full-upgrade|dist-upgrade|autoremove|build-dep)([[:space:]]|\$)" <<<"$cmd"; then
+    mutating=1
+elif grep -Eq "${W}dpkg[[:space:]]+(-[A-Za-z]*i[A-Za-z]*|--install|--remove|--purge|--configure|-P|-r)([[:space:]]|\$)" <<<"$cmd"; then
+    mutating=1
+# service state changes (status/show/list-* stay silent)
+elif grep -Eq "${W}systemctl[[:space:]]+(--[^[:space:]]+[[:space:]]+)*(start|stop|restart|reload|reload-or-restart|try-restart|enable|disable|mask|unmask|daemon-reload|daemon-reexec|set-default|isolate|kill|edit|revert|link|preset)([[:space:]]|\$)" <<<"$cmd"; then
+    mutating=1
+elif grep -Eq "${W}service[[:space:]]+[^[:space:]]+[[:space:]]+(start|stop|restart|reload|force-reload)([[:space:]]|\$)" <<<"$cmd"; then
+    mutating=1
+# boot plumbing and user management (all write under /etc or /boot)
+elif grep -Eq "${W}(update-grub|grub-install|update-initramfs|update-alternatives|useradd|userdel|usermod|groupadd|groupmod)([[:space:]]|\$)" <<<"$cmd"; then
     mutating=1
 # any recursive rm
 elif grep -Eq '(^|[;&|([:space:]])rm[[:space:]]+-[A-Za-z]*[rR]' <<<"$cmd"; then
