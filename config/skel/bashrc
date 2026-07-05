@@ -1,0 +1,21 @@
+# ~/.bashrc — managed by claude-os (config/skel/bashrc).
+#
+# PATH is exported BEFORE the interactive gate on purpose: bash sources
+# ~/.bashrc when invoked by sshd even non-interactively, so this line is what
+# makes `ssh claude-os.local node -v` work. Do not move it down.
+case ":$PATH:" in
+    *"$HOME/.local/share/mise/shims:"*) ;;
+    *) export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH" ;;
+esac
+
+# Everything below is for interactive shells only.
+case $- in *i*) ;; *) return ;; esac
+
+command -v mise >/dev/null 2>&1 && eval "$(mise activate bash)"
+
+# Minimal prompt: every character is repeated in every captured transcript.
+PS1='\w \$ '
+
+HISTCONTROL=ignoreboth
+HISTSIZE=5000
+shopt -s histappend checkwinsize

@@ -1,0 +1,8 @@
+{
+  "name": "claude-os-sensor",
+  "private": true,
+  "description": "Playwright runtime for the shot helper",
+  "dependencies": {
+    "playwright": "^1.50.0"
+  }
+}

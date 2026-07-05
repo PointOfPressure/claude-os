@@ -1,0 +1,9 @@
+# ~ian/.ssh/authorized_keys — managed by claude-os (config/ssh/authorized_keys).
+# Paste one public key per line, then re-run bootstrap (stage 70 disables SSH
+# password auth only after a real key appears here).
+#
+# Tower (Windows):   type %USERPROFILE%\.ssh\id_ed25519.pub
+# Phone (Claude app / Termius): copy from the app's key export.
+#
+# Example:
+# ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... ian@tower

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# claude-snapshot-hook — Claude Code PreToolUse hook (matcher: Bash).
+# Creates a snapper snapshot before mutating commands, rate-limited.
+#
+# Contract: this hook must NEVER interfere with the tool call. It always
+# exits 0 and prints nothing (exit 0 + no output = "no decision" for
+# PreToolUse), even when snapper is missing or sudo fails.
+set -uo pipefail
+
+RATE_LIMIT_MINUTES="${CLAUDE_SNAPSHOT_RATE_MINUTES:-10}"
+STATE="/tmp/claude-os-snapshot-$(id -u).last"
+
+[ -f /etc/snapper/configs/root ] || exit 0
+command -v jq >/dev/null 2>&1 || exit 0
+
+cmd=$(jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
+[ -n "$cmd" ] || exit 0
+
+# Heuristics, one grep per concern. False positive = one cheap snapshot
+# (rate-limited anyway); false negative = one missing pre-snapshot. Both fine.
+mutating=0
+# system-mutating programs, anywhere in a compound command
+if grep -Eq '(^|[;&|([:space:]])(sudo[[:space:]]+(-[A-Za-z-]+[[:space:]]+)*)?(apt|apt-get|aptitude|dpkg|systemctl|service|update-grub|grub-install|update-initramfs|update-alternatives|mkfs[.a-z0-9]*|parted|sfdisk|fdisk|wipefs|useradd|userdel|usermod|groupadd|groupmod)([[:space:]]|$)' <<<"$cmd"; then
+    mutating=1
+# any recursive rm
+elif grep -Eq '(^|[;&|([:space:]])rm[[:space:]]+-[A-Za-z]*[rR]' <<<"$cmd"; then
+    mutating=1
+# mutation verbs targeting /etc, /usr, /boot or /opt
+elif grep -Eq '(^|[[:space:]])(tee|cp|mv|install|ln|chmod|chown|rm|truncate|sed[[:space:]]+(-[A-Za-z]+[[:space:]]+)*-i[^ ]*)[[:space:]][^|;&]*/(etc|usr|boot|opt)/' <<<"$cmd"; then
+    mutating=1
+# shell redirections into /etc, /usr, /boot or /opt
+elif grep -Eq '>>?[[:space:]]*/(etc|usr|boot|opt)/' <<<"$cmd"; then
+    mutating=1
+fi
+[ "$mutating" -eq 1 ] || exit 0
+
+if [ -f "$STATE" ]; then
+    last=$(stat -c %Y "$STATE" 2>/dev/null || echo 0)
+    now=$(date +%s)
+    [ $((now - last)) -lt $((RATE_LIMIT_MINUTES * 60)) ] && exit 0
+fi
+
+desc="claude: ${cmd//$'\n'/ }"
+desc="${desc:0:100}"
+if [ "$(id -u)" -eq 0 ]; then
+    snapper -c root create -t single -c number -d "$desc" >/dev/null 2>&1 || true
+else
+    sudo -n snapper -c root create -t single -c number -d "$desc" >/dev/null 2>&1 || true
+fi
+touch "$STATE" 2>/dev/null || true
+exit 0

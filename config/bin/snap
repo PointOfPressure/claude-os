@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# snap — terse snapshot CLI for Claude OS. Thin wrapper over snapper so both
+# human and agent get single-token-cheap commands.
+set -euo pipefail
+
+usage() {
+    cat >&2 <<'EOF'
+snap — btrfs snapshots, tersely
+  snap now [label]     create a snapshot, print its number
+  snap list            list snapshots (csv: number,date,description)
+  snap diff <n>        files changed between snapshot n and now
+  snap rollback <n>    replace root subvolume with snapshot n, then reboot
+  snap prune           snapper number-cleanup + delete old pre-rollback roots
+EOF
+    exit 2
+}
+
+SNAPPER=(snapper)
+[ "$(id -u)" -ne 0 ] && SNAPPER=(sudo -n snapper)
+
+# Mount the btrfs top level (subvolid=5); prints the mountpoint.
+mount_top() {
+    local dev top
+    dev=$(findmnt -no SOURCE / | sed 's/\[.*$//')
+    top=$(mktemp -d /run/snap-top.XXXXXX)
+    mount -o subvolid=5 "$dev" "$top"
+    echo "$top"
+}
+
+cmd="${1:-}"
+[ -n "$cmd" ] || usage
+shift
+
+case "$cmd" in
+now)
+    label="${*:-manual}"
+    "${SNAPPER[@]}" -c root create -t single -c number -d "$label" --print-number
+    ;;
+list)
+    "${SNAPPER[@]}" --machine-readable csv -c root list --columns number,date,description
+    ;;
+diff)
+    n="${1:?usage: snap diff <n>}"
+    "${SNAPPER[@]}" -c root status "$n..0"
+    ;;
+rollback)
+    n="${1:?usage: snap rollback <n>}"
+    if [ "$(id -u)" -ne 0 ]; then exec sudo -n "$0" rollback "$n"; fi
+    [ "$(findmnt -no FSTYPE /)" = "btrfs" ] || { echo "root is not btrfs" >&2; exit 1; }
+    top=$(mount_top)
+    trap 'umount "$top" 2>/dev/null || true; rmdir "$top" 2>/dev/null || true' EXIT
+    src="$top/@snapshots/$n/snapshot"
+    [ -d "$src" ] || { echo "no snapshot $n (snap list)" >&2; exit 1; }
+    ts=$(date +%Y%m%d-%H%M%S)
+    mv "$top/@" "$top/@-pre-rollback-$ts"
+    btrfs subvolume snapshot "$src" "$top/@" >/dev/null
+    echo "root is now snapshot $n; old root kept as @-pre-rollback-$ts (snap prune deletes it)"
+    echo "reboot to complete"
+    ;;
+prune)
+    if [ "$(id -u)" -ne 0 ]; then exec sudo -n "$0" prune; fi
+    "${SNAPPER[@]}" -c root cleanup number
+    top=$(mount_top)
+    trap 'umount "$top" 2>/dev/null || true; rmdir "$top" 2>/dev/null || true' EXIT
+    for sub in "$top"/@-pre-rollback-*; do
+        [ -d "$sub" ] || continue
+        btrfs subvolume delete "$sub" >/dev/null && echo "deleted ${sub##*/}"
+    done
+    ;;
+*)
+    usage
+    ;;
+esac

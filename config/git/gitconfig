@@ -1,0 +1,22 @@
+# /etc/gitconfig — managed by claude-os (config/git/gitconfig).
+[core]
+	pager = cat
+[color]
+	ui = false
+[init]
+	defaultBranch = main
+[user]
+	name = Ian
+	email = ian@nataliedennis.co.uk
+[advice]
+	detachedHead = false
+	statusHints = false
+	pushNonFastForward = false
+	addIgnoredFile = false
+	skippedCherryPicks = false
+	fetchShowForcedUpdates = false
+[pull]
+	ff = only
+[safe]
+	# the repo itself is cloned by root but worked on by ian
+	directory = /opt/claude-os

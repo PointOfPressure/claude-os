@@ -1,0 +1,3 @@
+# Everything in this repo targets Linux. Never let CRLF near a shell script.
+* text=auto eol=lf
+*.png binary

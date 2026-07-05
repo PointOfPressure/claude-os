@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/local/bin/claude-snapshot-hook",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

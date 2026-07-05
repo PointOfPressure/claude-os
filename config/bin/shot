@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# shot — headless screenshot helper. Prints the output path, nothing else.
+#   shot <url> [out.png] [--full] [--width N] [--height N] [--wait MS]
+set -euo pipefail
+if ! command -v node >/dev/null 2>&1; then
+    echo "shot: node not on PATH (run as ian; mise provides node)" >&2
+    exit 1
+fi
+exec node /opt/playwright/shot.js "$@"
