@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 20-filesystem.sh — btrfs subvolume layout, snapper, grub-btrfs, snap CLI.
+# 20-filesystem.sh: btrfs subvolume layout, snapper, grub-btrfs, snap CLI.
 # Everything btrfs/grub-specific self-skips in containers.
 set -euo pipefail
 REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
@@ -7,7 +7,7 @@ REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
 . "$REPO_DIR/lib.sh"
 require_root
 
-# The snap CLI is plain bash — deploy it everywhere so it's reviewable/testable.
+# The snap CLI is plain bash, deploy it everywhere so it's reviewable/testable.
 deploy bin/snap /usr/local/bin/snap 0755
 
 if ! root_is_btrfs; then

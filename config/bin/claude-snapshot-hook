@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# claude-snapshot-hook — Claude Code PreToolUse hook (matcher: Bash).
+# claude-snapshot-hook: Claude Code PreToolUse hook (matcher: Bash).
 # Creates a snapper snapshot before mutating commands, rate-limited.
 #
 # Contract: this hook must NEVER interfere with the tool call. It always
@@ -7,7 +7,7 @@
 # PreToolUse), even when snapper is missing or sudo fails.
 #
 # Scope: only commands a root-filesystem snapshot can actually undo are worth
-# a snapshot — package ops, service config, user management, boot plumbing,
+# a snapshot, package ops, service config, user management, boot plumbing,
 # recursive rm, writes under /etc /usr /boot /opt. Read-only invocations
 # (apt list, dpkg -l, systemctl status, cat /etc/...) must not match.
 set -uo pipefail

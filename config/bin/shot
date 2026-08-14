@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shot — headless screenshot helper. Prints the output path, nothing else.
+# shot: headless screenshot helper. Prints the output path, nothing else.
 #   shot <url> [out.png] [--full] [--width N] [--height N] [--wait MS]
 set -euo pipefail
 if ! command -v node >/dev/null 2>&1; then

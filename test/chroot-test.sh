@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test/chroot-test.sh — run bootstrap + doctor inside a fresh debootstrap'd
+# test/chroot-test.sh: run bootstrap + doctor inside a fresh debootstrap'd
 # trixie chroot: the build-machine stand-in for a debian:trixie container.
 # Everything btrfs/grub/systemd-dependent self-skips, same as in docker.
 #

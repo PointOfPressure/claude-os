@@ -1,4 +1,4 @@
-# /etc/environment — managed by claude-os (config/environment/environment).
+# /etc/environment: managed by claude-os (config/environment/environment).
 # Read by pam_env for EVERY session, including `ssh host command` non-login
 # shells. This is the layer that makes the token-economy vars unavoidable.
 

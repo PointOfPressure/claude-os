@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test/hook-test.sh — unit-test claude-snapshot-hook's mutating-command
+# test/hook-test.sh: unit-test claude-snapshot-hook's mutating-command
 # detection and rate limiting, using a fake snapper. Safe to run anywhere the
 # hook is deployed (chroot or real host); restores state afterwards.
 set -u

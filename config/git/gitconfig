@@ -1,4 +1,4 @@
-# /etc/gitconfig — managed by claude-os (config/git/gitconfig).
+# /etc/gitconfig: managed by claude-os (config/git/gitconfig).
 [core]
 	pager = cat
 [color]

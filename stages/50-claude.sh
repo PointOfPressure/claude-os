@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 50-claude.sh — Claude Code from Anthropic's apt repo + hooks + global CLAUDE.md.
+# 50-claude.sh: Claude Code from Anthropic's apt repo + hooks + global CLAUDE.md.
 set -euo pipefail
 REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
 # shellcheck source=../lib.sh
@@ -37,5 +37,5 @@ deploy claude/CLAUDE.md "$CLAUDE_OS_HOME/.claude/CLAUDE.md" 0644 "$CLAUDE_OS_USE
 deploy claude/settings.json "$CLAUDE_OS_HOME/.claude/settings.json" 0644 "$CLAUDE_OS_USER:$CLAUDE_OS_USER"
 jq empty "$CLAUDE_OS_HOME/.claude/settings.json"
 
-# Auth is interactive OAuth — a documented manual step, not automated here.
+# Auth is interactive OAuth, a documented manual step, not automated here.
 command -v claude >/dev/null || die "claude not on PATH after install"

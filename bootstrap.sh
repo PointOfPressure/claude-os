@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bootstrap.sh — Claude OS entry point. Safe to run repeatedly.
+# bootstrap.sh: Claude OS entry point. Safe to run repeatedly.
 #
 # Fresh machine (after Debian netinst):
 #   curl -fsSL https://raw.githubusercontent.com/PointOfPressure/claude-os/main/bootstrap.sh | sudo bash

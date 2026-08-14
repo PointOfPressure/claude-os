@@ -1,4 +1,4 @@
-# /etc/default/zramswap — managed by claude-os.
+# /etc/default/zramswap: managed by claude-os.
 # Compressed RAM swap instead of a disk swap partition/file: nothing to
 # exclude from snapshots, and no btrfs swapfile caveats.
 ALGO=zstd

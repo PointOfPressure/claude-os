@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// shot.js — screenshot a URL with headless Chromium, print the output path.
+// shot.js, screenshot a URL with headless Chromium, print the output path.
 // Deployed to /opt/playwright/shot.js; invoked via /usr/local/bin/shot.
 'use strict';
 

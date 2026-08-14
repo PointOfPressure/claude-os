@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 10-base.sh — apt behaviour, core packages, firmware, locale/tz, primary user.
+# 10-base.sh: apt behaviour, core packages, firmware, locale/tz, primary user.
 set -euo pipefail
 REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
 # shellcheck source=../lib.sh
@@ -25,7 +25,7 @@ apt_install \
     net-tools bind9-dnsutils nmap ncdu moreutils shellcheck \
     locales sudo
 
-# Firmware for the Inspiron's WiFi (Intel or Broadcom SKU) — hardware only.
+# Firmware for the Inspiron's WiFi (Intel or Broadcom SKU), hardware only.
 if ! is_container; then
     apt_install firmware-linux-nonfree firmware-iwlwifi firmware-brcm80211
 fi
@@ -54,6 +54,6 @@ if ! id -u "$CLAUDE_OS_USER" >/dev/null 2>&1; then
     log "created user $CLAUDE_OS_USER"
 fi
 
-# Passwordless sudo — the agent has root by design.
+# Passwordless sudo, the agent has root by design.
 visudo -cf "$CONFIG_DIR/sudoers.d/ian-nopasswd" >/dev/null
 deploy sudoers.d/ian-nopasswd /etc/sudoers.d/ian-nopasswd 0440

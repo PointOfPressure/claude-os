@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# doctor.sh — verifies every claim in the Claude OS spec.
+# doctor.sh: verifies every claim in the Claude OS spec.
 # One line per check: OK / FAIL / SKIP. Non-zero exit on any FAIL.
 # Checks that need real hardware (btrfs/grub/systemd/docker daemon) SKIP in
-# containers — INSTALL.md lists them as first-boot verification.
+# containers: INSTALL.md lists them as first-boot verification.
 set -uo pipefail
 REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)}"
 # shellcheck source=lib.sh
@@ -11,7 +11,7 @@ require_root
 
 PASS=0 FAIL=0 SKIPPED=0
 ok() { printf 'OK   %s\n' "$1"; PASS=$((PASS + 1)); }
-fail() { printf 'FAIL %s%s\n' "$1" "${2:+ — $2}"; FAIL=$((FAIL + 1)); }
+fail() { printf 'FAIL %s%s\n' "$1" "${2:+: $2}"; FAIL=$((FAIL + 1)); }
 skip() { printf 'SKIP %s (%s)\n' "$1" "$2"; SKIPPED=$((SKIPPED + 1)); }
 chk() { local n="$1"; shift; if "$@" >/dev/null 2>&1; then ok "$n"; else fail "$n"; fi; }
 
@@ -87,7 +87,7 @@ if root_is_btrfs; then
         chk "grub-btrfsd active" systemctl is-active grub-btrfsd
     fi
 else
-    skip "btrfs layout / snapper / grub-btrfs" "root is not btrfs — verify on hardware"
+    skip "btrfs layout / snapper / grub-btrfs" "root is not btrfs, verify on hardware"
 fi
 
 # ---- claude code ----------------------------------------------------------------
@@ -124,12 +124,12 @@ if grep -Eq '^(ssh-|ecdsa-|sk-)' "$CLAUDE_OS_HOME/.ssh/authorized_keys" 2>/dev/n
     chk "ssh: password auth off" bash -c "sshd -T 2>/dev/null | grep -q '^passwordauthentication no'"
     chk "ssh: root login off" bash -c "sshd -T 2>/dev/null | grep -q '^permitrootlogin no'"
 else
-    skip "ssh key-only auth" "no public key pasted yet — INSTALL.md step"
+    skip "ssh key-only auth" "no public key pasted yet, INSTALL.md step"
 fi
 chk "logind lid config deployed" grep -q 'HandleLidSwitch=ignore' /etc/systemd/logind.conf.d/claude-os.conf
 chk "claude-session deployed" test -x /usr/local/bin/claude-session
 if is_container || ! has_systemd; then
-    skip "hostname/avahi/sleep-mask/zram/docker daemon" "no systemd — verify on hardware"
+    skip "hostname/avahi/sleep-mask/zram/docker daemon" "no systemd, verify on hardware"
 else
     chk "hostname claude-os" bash -c "[ \"\$(hostname)\" = claude-os ]"
     chk "avahi active" systemctl is-active avahi-daemon

@@ -1,4 +1,4 @@
-# /etc/snapper/configs/root — managed by claude-os (config/snapper/root).
+# /etc/snapper/configs/root: managed by claude-os (config/snapper/root).
 # Timeline snapshots OFF (noise); number cleanup ON (bounded disk use).
 SUBVOLUME="/"
 FSTYPE="btrfs"

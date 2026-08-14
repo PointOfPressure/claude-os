@@ -1,4 +1,4 @@
-// /etc/apt/apt.conf.d/99claude-os — managed by claude-os.
+// /etc/apt/apt.conf.d/99claude-os, managed by claude-os.
 // apt must never prompt, never draw progress bars, never colour output.
 APT::Get::Assume-Yes "true";
 APT::Color "false";

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# lib.sh — shared helpers sourced by bootstrap.sh, stages/*.sh and doctor.sh.
+# lib.sh: shared helpers sourced by bootstrap.sh, stages/*.sh and doctor.sh.
 # Not executable on its own.
 
 # Resolve repo layout relative to whichever script sourced us.
@@ -17,7 +17,7 @@ export LC_ALL=C.UTF-8
 log() { printf 'claude-os: %s\n' "$*"; }
 die() { printf 'claude-os: ERROR: %s\n' "$*" >&2; exit 1; }
 
-# True inside docker/podman/chroot — anywhere without a running systemd.
+# True inside docker/podman/chroot, anywhere without a running systemd.
 is_container() {
     [ -f /.dockerenv ] && return 0
     grep -qa 'container=' /proc/1/environ 2>/dev/null && return 0

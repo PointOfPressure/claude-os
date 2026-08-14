@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 30-environment.sh — the token-economy defaults no stock distro has.
+# 30-environment.sh: the token-economy defaults no stock distro has.
 set -euo pipefail
 REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
 # shellcheck source=../lib.sh

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 60-sensor.sh — the one exception to headless: Xvfb + Chromium + Playwright,
+# 60-sensor.sh: the one exception to headless: Xvfb + Chromium + Playwright,
 # so the agent can render -> screenshot -> verify frontend work.
 set -euo pipefail
 REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
@@ -9,7 +9,7 @@ require_root
 
 apt_install xvfb xauth
 
-run_as_user node -v >/dev/null 2>&1 || die "node missing — stage 40 must run first"
+run_as_user node -v >/dev/null 2>&1 || die "node missing, stage 40 must run first"
 
 # Playwright package (owned by ian, versions pinned by package.json).
 install -d -m 0755 -o "$CLAUDE_OS_USER" -g "$CLAUDE_OS_USER" /opt/playwright

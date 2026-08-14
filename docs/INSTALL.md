@@ -1,4 +1,4 @@
-# INSTALL — USB flash → Debian netinst → first boot → bootstrap
+# INSTALL: USB flash → Debian netinst → first boot → bootstrap
 
 Target machine: Dell Inspiron 7548 (Broadwell, 2015), currently dual-booting
 Windows + Zorin. Claude OS replaces **only the Zorin partition**. The Windows
@@ -18,12 +18,12 @@ Total time: ~20 minutes of installer + ~15 minutes of unattended bootstrap.
    - **Any Linux (e.g. the laptop's current Zorin):** GNOME *Disks* →
      *Restore Disk Image*, or
      `sudo dd if=debian-13.*-amd64-netinst.iso of=/dev/sdX bs=4M status=progress`.
-     dd-written sticks are read-only — use the `url=` preseed variant below,
+     dd-written sticks are read-only, use the `url=` preseed variant below,
      which needs no file on the USB at all.
 
 ## 2. Boot the installer
 
-1. Plug in USB + ethernet if available (WiFi works too — firmware is on the
+1. Plug in USB + ethernet if available (WiFi works too, firmware is on the
    ISO; you'll be asked to pick a network and passphrase).
 2. Power on, hammer **F12** for the Dell one-time boot menu, pick the USB
    (UEFI entry if both are offered).
@@ -41,11 +41,11 @@ Total time: ~20 minutes of installer + ~15 minutes of unattended bootstrap.
 
    then **Ctrl-X**/**Enter** to boot. (`/cdrom` is the USB.)
 
-The preseed answers everything except **passwords** (asked on purpose — no
+The preseed answers everything except **passwords** (asked on purpose, no
 default credentials live in this repo) and **partitioning** (deliberately
-interactive; see next section — an automated guess could destroy Windows).
+interactive; see next section, an automated guess could destroy Windows).
 
-## 3. Partitioning — the only careful part
+## 3. Partitioning: the only careful part
 
 When the installer reaches partitioning, choose **Manual**. You will see
 something like (order/sizes vary):
@@ -62,36 +62,35 @@ something like (order/sizes vary):
 Steps:
 
 1. Select the **Zorin ext4 partition** (identify it by being ext4 and by its
-   size — the only Linux filesystem partition). Set:
+   size, the only Linux filesystem partition). Set:
    - Use as: **btrfs journaling file system**
    - Format the partition: **yes, format it**
    - Mount point: **/**
 2. Select the **EFI System Partition** and confirm it shows *Use as: EFI
    System Partition*. Do **not** set "format". (Windows boots from here.)
 3. If Zorin had a **swap partition**: either leave it as swap (harmless) or
-   set it to *do not use* — Claude OS uses zram swap, not disk swap. If the
+   set it to *do not use*, Claude OS uses zram swap, not disk swap. If the
    installer warns "you have not selected any swap space", answer **No**
    (continue without swap).
 4. **Finish partitioning and write changes to disk.** On the confirmation
    screen verify that **exactly one** partition is listed to be formatted
    (the ex-Zorin one, as btrfs). If anything else says "format", go back.
 
-The installer creates a single btrfs subvolume `@rootfs`. That's expected —
-`bootstrap.sh` reshapes it into the final `@ / @home / @snapshots / @var-log`
+The installer creates a single btrfs subvolume `@rootfs`. That's expected, `bootstrap.sh` reshapes it into the final `@ / @home / @snapshots / @var-log`
 layout on first run (this is why the installer's thin btrfs support doesn't
 matter).
 
 ## 4. Finish the install
 
 - Passwords: set the `ian` password when asked (root login is disabled).
-- GRUB: the preseed pre-answers "install alongside other OS" — if asked where
+- GRUB: the preseed pre-answers "install alongside other OS", if asked where
   to install, take the default disk (the internal one). os-prober support for
   the Windows entry is finalised by bootstrap later.
 - Remove the USB when it reboots.
 
-## 5. First boot — bootstrap
+## 5. First boot: bootstrap
 
-Log in as `ian` on the console (or `ssh ian@<ip>` — password auth is still on
+Log in as `ian` on the console (or `ssh ian@<ip>`, password auth is still on
 at this point; get the IP from `ip -4 a` on the console or your router).
 
 ```bash
@@ -131,7 +130,7 @@ which turns off password auth and root login. Alternatively: paste keys into
 `config/ssh/authorized_keys` in the repo (then the repo is authoritative and
 reinstalls carry the keys).
 
-## 7. Authenticate Claude Code (interactive, once)
+## 7. Authenticate Claude Code (interactive: once)
 
 ```bash
 ssh -t ian@claude-os.local claude
@@ -150,10 +149,10 @@ Every line should read `OK` (the `ssh key-only auth` line shows `SKIP` until
 step 6 is done). Because the build machine can only test in containers, give
 these **hardware-only checks** special attention on first boot:
 
-- `subvol:` lines — the four-subvolume layout is live
+- `subvol:` lines, the four-subvolume layout is live
 - `snapper list works`, `snapper-cleanup.timer active`
 - `grub cfg lists snapshots` and `grub-btrfsd active`
-- `grub cfg lists Windows` — **dual boot survived**; also eyeball the GRUB
+- `grub cfg lists Windows`, **dual boot survived**; also eyeball the GRUB
   menu on a reboot before you close the lid for good
 - `docker daemon runs containers`
 - `zram swap active`, `sleep targets masked`, `avahi active`

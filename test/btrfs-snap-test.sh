@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# test/btrfs-snap-test.sh — exercise the exact subvolume mechanics that
+# test/btrfs-snap-test.sh: exercise the exact subvolume mechanics that
 # `snap rollback` and `snap prune` perform, on a throwaway btrfs loop device.
 # Needs a kernel with btrfs (WSL2 qualifies) and btrfs-progs. Run as root.
 set -euo pipefail

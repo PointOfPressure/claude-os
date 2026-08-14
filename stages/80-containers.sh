@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 80-containers.sh — docker from Debian repos: the second line of disposability.
+# 80-containers.sh: docker from Debian repos: the second line of disposability.
 set -euo pipefail
 REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
 # shellcheck source=../lib.sh
@@ -7,7 +7,7 @@ REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
 require_root
 
 apt_install docker.io
-# compose v2 — trixie ships it as "docker-compose" (2.x, the Go rewrite);
+# compose v2, trixie ships it as "docker-compose" (2.x, the Go rewrite);
 # some releases call it "docker-compose-v2", so take whichever exists
 if apt-cache show docker-compose-v2 >/dev/null 2>&1; then
     apt_install docker-compose-v2

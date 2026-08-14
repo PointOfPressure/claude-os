@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-# claude-session — attach to (or create) the persistent agent tmux session.
+# claude-session: attach to (or create) the persistent agent tmux session.
 # Long-running Claude Code sessions survive SSH drops inside it.
 exec tmux new-session -A -s claude

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 70-appliance.sh — SSH, mDNS, lid/power behaviour, hostname, zram, tmux session.
+# 70-appliance.sh: SSH, mDNS, lid/power behaviour, hostname, zram, tmux session.
 set -euo pipefail
 REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
 # shellcheck source=../lib.sh
@@ -36,7 +36,7 @@ if grep -Eq '^(ssh-|ecdsa-|sk-)' "$KEYS"; then
         log "ssh hardened: key-only auth"
     fi
 else
-    log "WARNING: no public key in $KEYS yet — ssh password auth stays ON (see INSTALL.md)"
+    log "WARNING: no public key in $KEYS yet, ssh password auth stays ON (see INSTALL.md)"
 fi
 if has_systemd; then
     systemctl enable --now ssh >/dev/null 2>&1

@@ -1,4 +1,4 @@
-# ~ian/.ssh/authorized_keys — managed by claude-os (config/ssh/authorized_keys).
+# ~ian/.ssh/authorized_keys: managed by claude-os (config/ssh/authorized_keys).
 # Paste one public key per line, then re-run bootstrap (stage 70 disables SSH
 # password auth only after a real key appears here).
 #

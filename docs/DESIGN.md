@@ -1,4 +1,4 @@
-# DESIGN — why each decision went the way it did
+# DESIGN: why each decision went the way it did
 
 Ordering principle for every call: **turn economy > output economy > cheap
 disposability**, and when two options tie, the more boring one (deeper
@@ -29,9 +29,9 @@ not recalled from memory.
 - **Installer keeps its happy path; stage 20 reshapes.** The Debian installer
   can only make a single `@rootfs` subvolume without acrobatics, so INSTALL.md
   asks for a plain btrfs `/` and bootstrap does the rest: rename
-  `@rootfs`→`@` (safe while booted — subvolumes are held by id, not name),
+  `@rootfs`→`@` (safe while booted, subvolumes are held by id, not name),
   update fstab, `update-grub` **and `grub-install`** (GRUB embeds the
-  subvolume path in its core image — skipping grub-install after the rename
+  subvolume path in its core image, skipping grub-install after the rename
   would drop you in a grub rescue shell), then demand one reboot.
 - **Layout `@ / @home / @var-log / @snapshots`**, all top-level:
   - `@home`: work survives OS rollbacks.
@@ -64,7 +64,7 @@ not recalled from memory.
 ## Token-economy environment
 
 - **`/etc/environment` is the primary layer**: pam_env applies it to every
-  PAM session **including `ssh host cmd` non-login shells** — the agent's
+  PAM session **including `ssh host cmd` non-login shells**, the agent's
   main entry point. `environment.d/` covers systemd user services;
   `profile.d/` is belt-and-braces for login shells.
 - **mise shims PATH lives in `~/.bashrc` *above* the interactive-exit gate.**
@@ -75,24 +75,22 @@ not recalled from memory.
 - **git `core.pager=cat`, not `false`** (spec said `false`): git would try to
   *execute* `false` as the pager and swallow all output on a tty. `cat` is
   the safe spelling of "no pager". Real `user.name`/`user.email` instead of
-  placeholders — single-operator appliance.
+  placeholders, single-operator appliance.
 - **npm/pip/uv/dotnet quieting via env vars** (`NPM_CONFIG_*`, `PIP_*`,
   `UV_NO_PROGRESS`, `DOTNET_NOLOGO`) rather than per-tool config files:
   version-manager-proof (mise swaps node versions; env vars survive).
 - **MOTD emptied + update-motd.d de-executed; PS1 `\w \$ `**: every prompt
   character is repeated in every captured transcript.
-- **apt: assume-yes, force-confdef/confold, no fancy progress, no colour**
-  — an apt conffile prompt is the canonical wasted turn.
+- **apt: assume-yes, force-confdef/confold, no fancy progress, no colour**, an apt conffile prompt is the canonical wasted turn.
 
 ## Toolchain
 
 - **mise via its apt repo through `extrepo`** *(verified: documented route
   for Debian 11+)*: system binary, updated by apt, no curl-pipe drift. Tools
   (`node@lts pnpm@latest go@latest rust@latest uv@latest`) install per-user
-  for `ian` — channels, not pinned numbers, so `mise up` tracks currency.
+  for `ian`, channels, not pinned numbers, so `mise up` tracks currency.
 - **.NET SDK 10 (current LTS) from packages.microsoft.com/config/debian/13**
-  *(verified: Debian 13 supported, .NET 10/9/8 available)*. System-wide —
-  `dotnet new` works in any shell with zero setup.
+  *(verified: Debian 13 supported, .NET 10/9/8 available)*. System-wide, `dotnet new` works in any shell with zero setup.
 - **Python via `uv`** (installed by mise): venvs and tools without touching
   system python3.
 
@@ -101,15 +99,15 @@ not recalled from memory.
 - **Anthropic's signed apt repo, `stable` channel** *(verified: repo at
   downloads.claude.ai/claude-code/apt, package `claude-code`)*; the signing
   key fingerprint is pinned in the stage and verified before the repo is
-  trusted. No npm install (per spec), no self-updater surprises — updates
+  trusted. No npm install (per spec), no self-updater surprises, updates
   ride `apt upgrade`.
-- **OAuth is a documented manual step** — deliberately not automated.
+- **OAuth is a documented manual step**, deliberately not automated.
 - **Hook design** *(schema verified against live hooks docs)*: one
   `PreToolUse` hook matching the `Bash` tool; reads `tool_input.command`
   from stdin JSON; regex heuristics for mutating commands (package ops,
   service ops, recursive rm, writes under /etc /usr /boot /opt).
   - **Subcommand-level matching**: `apt list`, `dpkg -l`, `systemctl status`
-    and friends are read-only and constant in agent traffic — matching bare
+    and friends are read-only and constant in agent traffic, matching bare
     program names would snapshot on recon. Only mutating subcommands match.
   - **Partitioning tools deliberately excluded** (`fdisk`, `parted`, `mkfs`):
     a root-filesystem snapshot cannot undo partition-table damage, so a
@@ -120,19 +118,18 @@ not recalled from memory.
     either way.
   - **Rate-limited** (1 per 10 min, mtime state file in /tmp) so a burst of
     apt commands doesn't mint 30 snapshots.
-  - **Contract: always exit 0, always silent** — a broken safety hook must
+  - **Contract: always exit 0, always silent**, a broken safety hook must
     degrade to "no snapshot", never to "agent can't run commands".
-- **`~/.claude/settings.json` and `CLAUDE.md` are repo-owned and deployed** —
-  hand-edits there die on the next bootstrap, by design (edit the repo).
+- **`~/.claude/settings.json` and `CLAUDE.md` are repo-owned and deployed**, hand-edits there die on the next bootstrap, by design (edit the repo).
 
 ## Sensor (stage 60)
 
 - **Playwright-managed Chromium** in `/opt/ms-playwright`
   (`PLAYWRIGHT_BROWSERS_PATH` set system-wide) rather than Debian's chromium:
   `--with-deps` installs the system libraries *(verified: Debian 13 is a
-  supported Playwright platform; Node 22/24/26 required — mise's node LTS
+  supported Playwright platform; Node 22/24/26 required, mise's node LTS
   qualifies)*.
-- **`shot` uses headless Chromium — Xvfb isn't in its path.** Xvfb is still
+- **`shot` uses headless Chromium, Xvfb isn't in its path.** Xvfb is still
   installed (spec) for the rare genuinely-headed case via `xvfb-run`.
 - Playwright the npm package lives in `/opt/playwright` owned by `ian`,
   pinned by `package.json` (`^1.50`).
@@ -145,18 +142,18 @@ not recalled from memory.
 - avahi + libnss-mdns → `claude-os.local`; logind ignores the lid everywhere;
   sleep/suspend/hibernate targets masked.
 - **`claude-session` = `tmux new -A -s claude`**: the spec's "systemd user
-  service" option was skipped — tmux alone survives SSH drops, and one moving
+  service" option was skipped, tmux alone survives SSH drops, and one moving
   part is fewer than two.
 
 ## Containers (stage 80)
 
 - **`docker.io` from Debian repos** (spec: fluency beats freshness), user in
   `docker` group, `docker-compose-v2` when trixie carries it. json-file logs
-  capped 10 MB×3 — output economy applies to disk too.
+  capped 10 MB×3, output economy applies to disk too.
 
 ## Repo/process decisions
 
-- **`snap` name collides with snapd's CLI** — accepted: snapd isn't
+- **`snap` name collides with snapd's CLI**, accepted: snapd isn't
   installed on this box and `/usr/local/bin` shadows `/usr/bin` anyway.
   The word had to be one token.
 - **Preseed does not partition.** A wrong automated answer nukes Windows; the
@@ -165,7 +162,7 @@ not recalled from memory.
   be broken (backend crash, no WSL distros), so container-equivalent testing
   runs in a debootstrap'd trixie chroot inside WSL2-Debian instead. Same
   skip-behaviour as docker (`is_container` = "no running systemd").
-  Use its `clean` subcommand for fresh runs — a bare `rm -rf` on a chroot
+  Use its `clean` subcommand for fresh runs, a bare `rm -rf` on a chroot
   with live `/proc` `/sys` `/dev` rbinds eats the host (this was learned the
   disposable way: the first WSL build distro died exactly like that and was
   reinstalled in two minutes, which is at least on-message).
@@ -173,7 +170,6 @@ not recalled from memory.
   limit, garbage-stdin safety), `grub-btrfs-install-test.sh` (pinned release
   still builds on trixie, DESTDIR throwaway), `btrfs-snap-test.sh` (the
   exact rename-and-replace mechanics of `snap rollback`/`prune` on a btrfs
-  loop device — validated on WSL2's kernel).
+  loop device, validated on WSL2's kernel).
 - **Stages log one line per action and nothing when idle**; second bootstrap
-  run prints only stage banners. `deploy()` copies files from `config/` —
-  configs are reviewable diffs, never heredocs.
+  run prints only stage banners. `deploy()` copies files from `config/`, configs are reviewable diffs, never heredocs.

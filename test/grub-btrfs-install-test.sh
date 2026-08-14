@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# test/grub-btrfs-install-test.sh — verify the pinned grub-btrfs release still
+# test/grub-btrfs-install-test.sh: verify the pinned grub-btrfs release still
 # clones and `make install`s cleanly on trixie (stage 20 does this on real
 # hardware, where the chroot test can't reach). Installs into a DESTDIR and
-# throws it away — does not touch the running system.
+# throws it away, does not touch the running system.
 set -euo pipefail
 tmp=$(mktemp -d)
 dest=$(mktemp -d)

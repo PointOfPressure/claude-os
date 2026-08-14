@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 40-toolchain.sh — mise (node/pnpm/go/rust/uv) + .NET SDK.
+# 40-toolchain.sh: mise (node/pnpm/go/rust/uv) + .NET SDK.
 set -euo pipefail
 REPO_DIR="${REPO_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}"
 # shellcheck source=../lib.sh
@@ -15,7 +15,7 @@ if ! compgen -G '/etc/apt/sources.list.d/extrepo_mise*' >/dev/null; then
 fi
 apt_install mise
 
-# Tool versions are channels, not numbers — mise keeps them current.
+# Tool versions are channels, not numbers, mise keeps them current.
 # Installed per-user for ian; shims land in ~/.local/share/mise/shims, which
 # ~/.bashrc puts on PATH for interactive AND `ssh host cmd` shells.
 run_as_user env MISE_YES=1 mise use -g node@lts pnpm@latest go@latest rust@latest uv@latest

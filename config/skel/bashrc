@@ -1,4 +1,4 @@
-# ~/.bashrc — managed by claude-os (config/skel/bashrc).
+# ~/.bashrc: managed by claude-os (config/skel/bashrc).
 #
 # PATH is exported BEFORE the interactive gate on purpose: bash sources
 # ~/.bashrc when invoked by sshd even non-interactively, so this line is what

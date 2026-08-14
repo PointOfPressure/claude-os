@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# snap — terse snapshot CLI for Claude OS. Thin wrapper over snapper so both
+# snap: terse snapshot CLI for Claude OS. Thin wrapper over snapper so both
 # human and agent get single-token-cheap commands.
 set -euo pipefail
 
 usage() {
     cat >&2 <<'EOF'
-snap — btrfs snapshots, tersely
+snap, btrfs snapshots, tersely
   snap now [label]     create a snapshot, print its number
   snap list            list snapshots (csv: number,date,description)
   snap diff <n>        files changed between snapshot n and now
