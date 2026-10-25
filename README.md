@@ -1,15 +1,13 @@
 # Claude OS
 
-A Debian 13 configuration for running Claude Code on bare metal: a headless
-appliance where the agent has root, and safety comes from btrfs snapshots and a
-fast reinstall rather than permission prompts.
+<p align="center"><code>sudo /opt/claude-os/bootstrap.sh</code></p>
+
+A Debian 13 setup for running Claude Code on bare metal as root, made safe by btrfs snapshots and a fast reinstall, not permission prompts.
 
 Built for a Dell Inspiron 7548 on the LAN (`claude-os.local`), lid closed,
 reached over SSH. It replaces a Zorin partition and leaves Windows bootable.
 
-## What it optimises for
-
-Inference latency is the bottleneck, not the OS. In order:
+Inference latency is the bottleneck, not the OS. It optimises for, in order:
 
 1. Nothing may cost the agent a turn: no interactive prompts, no pagers, no
    missing tools, no conffile questions.
@@ -18,10 +16,9 @@ Inference latency is the bottleneck, not the OS. In order:
 3. The agent runs as root. Undo is `snap rollback`, the fallback is a bootable
    snapshot in the GRUB menu, and the last resort is a 20-minute reinstall.
 
-Debian, bash and apt throughout, on the grounds that they are the best
-represented in an LLM's training data.
+Debian, bash and apt throughout: the best represented in LLM training data.
 
-## Quickstart
+## Usage
 
 ```
 # 1. Install Debian 13 netinst with preseed.cfg  -> docs/INSTALL.md
@@ -33,10 +30,21 @@ sudo /opt/claude-os/bootstrap.sh     # installs everything else
 sudo /opt/claude-os/doctor.sh        # every line should say OK
 ```
 
-`bootstrap.sh` is idempotent. Run it after any repo change. `doctor.sh` is the
-acceptance test.
+`bootstrap.sh` is idempotent; rerun it after any repo change. `doctor.sh` is
+the acceptance test.
 
-## Layout
+## How it works
+
+`snapper` snapshots the root subvolume; a rate-limited `PreToolUse` hook takes
+one before mutating commands. `grub-btrfs` makes every
+snapshot bootable from the GRUB menu. The `snap` CLI wraps `now`, `list`,
+`diff`, `rollback` and `prune`.
+
+`/home` and `/var/log` are separate subvolumes, so an OS rollback keeps work
+and logs. Failing all that, a netinst USB with `preseed.cfg` and
+`bootstrap.sh` rebuilds the machine in about 20 minutes.
+
+<details><summary>Layout</summary>
 
 | Path | What |
 |---|---|
@@ -49,13 +57,4 @@ acceptance test.
 | `docs/DESIGN.md` | why each decision was made |
 | `test/chroot-test.sh` | bootstrap and doctor in a fresh trixie chroot |
 
-## Safety model
-
-`snapper` snapshots the root subvolume, and a `PreToolUse` hook takes one before
-mutating commands, rate-limited. `grub-btrfs` makes every snapshot bootable from
-the GRUB menu. The `snap` CLI wraps `now`, `list`, `diff`, `rollback` and
-`prune`.
-
-`/home` and `/var/log` are separate subvolumes, so rolling back the OS does not
-take work or logs with it. Failing all of that, a netinst USB with `preseed.cfg`
-and `bootstrap.sh` rebuilds the machine in about 20 minutes.
+</details>
